@@ -29,32 +29,36 @@ StoryOrbit_AI/
     server.py             Local/cloud API proxy and multi-agent orchestration
   docs/                   Product docs, user guide, and examples
   DEPLOY.md               Deployment guide
-  start-qwen-server.bat   Windows launcher for local AI proxy
-  start-qwen-server.ps1
+  start-ai-server.bat     Windows launcher for local AI proxy
+  start-ai-server.ps1
 ```
 
-## Local Usage
+## Quick Start
 
-Open the frontend directly:
+Clone the repository:
+
+```bash
+git clone https://github.com/bbc578/Storyorbit-ai.git
+cd Storyorbit-ai
+```
+
+Open the app:
 
 ```text
-D:\StoryOrbit_AI\app\index.html
+app/index.html
 ```
 
-The app can run in offline mode with local generation.
+StoryOrbit AI can run without an API key. In offline mode, the built-in local rule engine can create starter universes, character memory cards, plot branches, stress tests, and exports.
 
-For cloud AI enhanced generation:
+## Optional AI Backend
 
-1. Start the local proxy:
+For stronger multi-agent generation, run the optional local AI proxy:
 
-```text
-D:\StoryOrbit_AI\start-qwen-server.bat
+```bash
+start-ai-server.bat
 ```
 
-2. Enter your DashScope/Qwen API key when prompted.
-3. Keep the terminal window open.
-4. Open `app/index.html`.
-5. In the sidebar, check AI status and enable cloud AI enhancement.
+Then enter a compatible cloud AI API key when prompted, keep the terminal window open, and enable cloud AI enhancement in the app sidebar.
 
 API keys are never written into frontend files.
 
@@ -75,7 +79,7 @@ See [DEPLOY.md](./DEPLOY.md).
 Recommended architecture:
 
 ```text
-Browser frontend -> your backend API -> DashScope/Qwen
+Browser frontend -> your backend API -> AI provider
 ```
 
 Do not put cloud AI API keys in `app/`.
@@ -86,7 +90,7 @@ This is a working MVP:
 
 - Static frontend is complete.
 - Local generation is available.
-- Qwen-compatible multi-agent backend is available.
+- Cloud-AI-compatible multi-agent backend is available.
 - Deployment path is documented.
 
 ## Security Notes
