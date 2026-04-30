@@ -20,6 +20,7 @@ It helps creators turn an idea into a structured story project: world rules, cha
 
 ```text
 StoryOrbit_AI/
+  index.html              Static redirect to the app
   app/                    Static frontend
     index.html
     styles.css
@@ -28,8 +29,9 @@ StoryOrbit_AI/
   server/
     server.py             Local/cloud API proxy and multi-agent orchestration
   docs/                   Product docs, user guide, and examples
+  .env.example            Backend environment variable template
   DEPLOY.md               Deployment guide
-  start-ai-server.bat     Windows launcher for local AI proxy
+  start-ai-server.bat     Windows launcher for optional AI proxy
   start-ai-server.ps1
 ```
 
@@ -48,6 +50,8 @@ Open the app:
 app/index.html
 ```
 
+If the repository is deployed as a static site, the root `index.html` redirects to the app automatically.
+
 StoryOrbit AI can run without an API key. In offline mode, the built-in local rule engine can create starter universes, character memory cards, plot branches, stress tests, and exports.
 
 ## Optional AI Backend
@@ -61,6 +65,14 @@ start-ai-server.bat
 Then enter a compatible cloud AI API key when prompted, keep the terminal window open, and enable cloud AI enhancement in the app sidebar.
 
 API keys are never written into frontend files.
+
+For hosted backends, use these environment variables:
+
+```text
+STORYORBIT_API_KEY=your_api_key
+STORYORBIT_API_BASE_URL=https://your-openai-compatible-endpoint/v1
+STORYORBIT_MODEL=your-model-name
+```
 
 ## Multi-Agent Flow
 
@@ -92,6 +104,7 @@ This is a working MVP:
 - Local generation is available.
 - Cloud-AI-compatible multi-agent backend is available.
 - Deployment path is documented.
+- CI checks syntax and scans for obvious secret patterns.
 
 ## Security Notes
 

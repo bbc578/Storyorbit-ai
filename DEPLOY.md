@@ -9,20 +9,20 @@ Never place API keys in `app/`. Frontend files are public once deployed.
 
 ## Option 1: Local Demo
 
-Use this when presenting the project on your own machine.
+Use this when testing the project on your own machine.
 
 1. Start the AI proxy:
 
 ```powershell
-cd D:\StoryOrbit_AI
-.\start-qwen-server.bat
+cd Storyorbit-ai
+.\start-ai-server.bat
 ```
 
-2. Enter your DashScope/Qwen API key when prompted.
+2. Enter a compatible cloud AI API key when prompted.
 3. Open the frontend:
 
 ```text
-D:\StoryOrbit_AI\app\index.html
+app/index.html
 ```
 
 This mode keeps the API key only in the local terminal environment.
@@ -48,9 +48,12 @@ Use this when other users need cloud AI generation.
 2. Set environment variables on the server:
 
 ```text
-DASHSCOPE_API_KEY=your_new_api_key
-DASHSCOPE_MODEL=qwen-plus
+STORYORBIT_API_KEY=your_api_key
+STORYORBIT_API_BASE_URL=https://your-openai-compatible-endpoint/v1
+STORYORBIT_MODEL=your-model-name
+STORYORBIT_AI_PROVIDER=OpenAI-compatible AI
 STORYORBIT_PORT=8787
+STORYORBIT_AGENT_WORKERS=4
 ```
 
 3. Put the backend behind HTTPS, for example:
@@ -70,7 +73,7 @@ window.STORYORBIT_API_BASE_URL = "https://api.your-domain.com";
 ## Recommended Architecture
 
 ```text
-User browser -> static frontend -> your backend API -> DashScope/Qwen
+User browser -> static frontend -> your backend API -> AI provider
 ```
 
 The API key must stay in backend environment variables only.

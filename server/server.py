@@ -11,8 +11,13 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 HOST = "127.0.0.1"
 PORT = int(os.getenv("STORYORBIT_PORT", "8787"))
-BASE_URL = os.getenv("DASHSCOPE_BASE_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1")
-MODEL = os.getenv("DASHSCOPE_MODEL", "qwen-plus")
+PROVIDER_NAME = os.getenv("STORYORBIT_AI_PROVIDER", "OpenAI-compatible AI")
+BASE_URL = (
+    os.getenv("STORYORBIT_API_BASE_URL")
+    or os.getenv("DASHSCOPE_BASE_URL")
+    or "https://dashscope.aliyuncs.com/compatible-mode/v1"
+)
+MODEL = os.getenv("STORYORBIT_MODEL") or os.getenv("DASHSCOPE_MODEL") or "qwen-plus"
 MAX_CHARACTER_WORKERS = int(os.getenv("STORYORBIT_AGENT_WORKERS", "4"))
 
 
@@ -30,10 +35,14 @@ STRESS_DIMENSIONS = [
 ]
 
 
-def call_qwen(messages, model=None, temperature=0.7):
-    api_key = clean_api_key(os.getenv("DASHSCOPE_API_KEY", ""))
+def get_api_key():
+    return clean_api_key(os.getenv("STORYORBIT_API_KEY") or os.getenv("DASHSCOPE_API_KEY") or "")
+
+
+def call_ai(messages, model=None, temperature=0.7):
+    api_key = get_api_key()
     if not api_key:
-        raise RuntimeError("DASHSCOPE_API_KEY is missing or invalid. It should look like sk-...")
+        raise RuntimeError("STORYORBIT_API_KEY is missing. DASHSCOPE_API_KEY is also supported for compatibility.")
 
     url = f"{BASE_URL.rstrip('/')}/chat/completions"
     body = json.dumps(
@@ -61,7 +70,16 @@ def call_qwen(messages, model=None, temperature=0.7):
 def clean_api_key(value):
     value = (value or "").strip().strip('"').strip("'")
     match = re.search(r"sk-[A-Za-z0-9_\-]{16,}", value)
-    return match.group(0) if match else ""
+    if match:
+        return match.group(0)
+    value = re.sub(r"\s+", "", value)
+    if len(value) >= 8:
+        try:
+            value.encode("ascii")
+            return value
+        except UnicodeEncodeError:
+            return ""
+    return ""
 
 
 def extract_json(text):
@@ -79,7 +97,7 @@ def extract_json(text):
 
 
 def ask_json(agent_name, system_prompt, user_prompt, temperature=0.7):
-    content = call_qwen(
+    content = call_ai(
         [
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt},
@@ -217,7 +235,7 @@ def director_agent(context, reactions):
 
 def critic_agent(context, reactions, branches):
     system = (
-        "你是 StoryOrbit AI 的评审智能体。你负责严格找问题，而不是夸奖作品。"
+        "你是 StoryOrbit AI 的质检智能体。你负责严格找问题，而不是夸奖作品。"
         "你必须从商业短剧、网文连载和游戏叙事角度评估。只输出合法 JSON。"
     )
     dimension_text = "、".join([name for name, _ in STRESS_DIMENSIONS])
@@ -500,7 +518,8 @@ class Handler(BaseHTTPRequestHandler):
             self.json_response(
                 {
                     "ok": True,
-                    "hasKey": bool(os.getenv("DASHSCOPE_API_KEY")),
+                    "hasKey": bool(get_api_key()),
+                    "provider": PROVIDER_NAME,
                     "model": MODEL,
                     "baseUrl": BASE_URL,
                     "mode": "multi-agent",
@@ -530,7 +549,7 @@ class Handler(BaseHTTPRequestHandler):
             self.end_headers()
         except urllib.error.HTTPError as exc:
             detail = exc.read().decode("utf-8", errors="replace")
-            self.json_response({"ok": False, "error": f"DashScope HTTP {exc.code}", "detail": detail}, status=502)
+            self.json_response({"ok": False, "error": f"AI provider HTTP {exc.code}", "detail": detail}, status=502)
         except Exception as exc:
             traceback.print_exc()
             self.json_response({"ok": False, "error": str(exc)}, status=500)
@@ -549,7 +568,8 @@ class Handler(BaseHTTPRequestHandler):
 
 if __name__ == "__main__":
     server = ThreadingHTTPServer((HOST, PORT), Handler)
-    print(f"StoryOrbit Qwen multi-agent proxy running at http://{HOST}:{PORT}")
+    print(f"StoryOrbit AI multi-agent proxy running at http://{HOST}:{PORT}")
+    print(f"Provider: {PROVIDER_NAME}")
     print(f"Model: {MODEL}")
     print(f"Character workers: {MAX_CHARACTER_WORKERS}")
     print("Press Ctrl+C to stop.")

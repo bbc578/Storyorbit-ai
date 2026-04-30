@@ -67,7 +67,7 @@ const uid = () => (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Ma
 let store = loadStore();
 let activeTab = "dashboard";
 let selectedBranchIndex = 0;
-let qwenProxyStatus = { ok: false, hasKey: false, model: "" };
+let aiProxyStatus = { ok: false, hasKey: false, model: "" };
 let progressTimer = null;
 
 const pageMeta = {
@@ -442,7 +442,7 @@ function applyBootstrapProject(data, sourceLabel) {
   toast(`${sourceLabel}已生成故事宇宙。`);
 }
 
-async function generateStarterWithQwen() {
+async function generateStarterWithAi() {
   const idea = $("starterIdea").value.trim();
   if (!idea) return toast("先输入一句故事点子。");
   try {
@@ -478,8 +478,8 @@ function renderStats() {
   $("statRuns").textContent = p.runs.length;
   $("statTokens").textContent = estimateTokens(p);
   if ($("apiStatus")) {
-    $("apiStatus").textContent = qwenProxyStatus.ok && qwenProxyStatus.hasKey
-      ? (qwenProxyStatus.mode === "multi-agent" ? "云端增强" : "需要更新")
+    $("apiStatus").textContent = aiProxyStatus.ok && aiProxyStatus.hasKey
+      ? (aiProxyStatus.mode === "multi-agent" ? "云端增强" : "需要更新")
       : "离线模式";
   }
 }
@@ -630,11 +630,11 @@ async function runSimulation() {
   if (!p.eventPrompt) return toast("先输入剧情事件。");
   if (selected.length < 2) return toast("至少选择 2 个角色。");
   let run;
-  if ($("useQwenApi")?.checked) {
+  if ($("useCloudAi")?.checked) {
     try {
-      startProgress("AI 多智能体推演中", ["角色智能体", "导演智能体", "评审智能体", "编剧智能体"]);
+      startProgress("AI 多智能体推演中", ["角色智能体", "导演智能体", "质检智能体", "编剧智能体"]);
       toast("AI 正在生成剧情推演...");
-      run = await buildQwenRun(p, selected);
+      run = await buildCloudAiRun(p, selected);
       finishProgress("多智能体推演完成");
     } catch (error) {
       console.warn(error);
@@ -664,7 +664,7 @@ function buildLocalRun(p, selected) {
   };
 }
 
-async function buildQwenRun(p, selected) {
+async function buildCloudAiRun(p, selected) {
   const response = await fetch(`${API_BASE_URL}/api/simulate`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -688,7 +688,7 @@ async function buildQwenRun(p, selected) {
     eventPrompt: p.eventPrompt,
     outputMode: p.outputMode,
     intensity: p.intensity,
-    source: "qwen-multi-agent",
+    source: "cloud-multi-agent",
     agentTrace: data.agentTrace,
     reactions: data.reactions,
     branches: data.branches,
@@ -730,14 +730,14 @@ function applyRun(p, selected, run) {
   });
   saveStore(false);
   switchTab("simulation");
-  toast(run.source === "qwen-multi-agent" ? "AI 多智能体推演已完成，并写入角色记忆。" : "剧情推演已完成，并写入角色记忆。");
+  toast(run.source === "cloud-multi-agent" ? "AI 多智能体推演已完成，并写入角色记忆。" : "剧情推演已完成，并写入角色记忆。");
 }
 
-async function checkQwenStatus(showToast = true) {
+async function checkAiStatus(showToast = true) {
   try {
     const response = await fetch(`${API_BASE_URL}/api/status`, { cache: "no-store" });
     const data = await response.json();
-    qwenProxyStatus = data;
+    aiProxyStatus = data;
     const isMultiAgent = data.ok && data.hasKey && data.mode === "multi-agent";
     if ($("apiStatus")) $("apiStatus").textContent = data.ok && data.hasKey ? (isMultiAgent ? "云端增强" : "需要更新") : "离线模式";
     if (showToast) {
@@ -747,7 +747,7 @@ async function checkQwenStatus(showToast = true) {
     }
     return isMultiAgent;
   } catch {
-    qwenProxyStatus = { ok: false, hasKey: false, model: "" };
+    aiProxyStatus = { ok: false, hasKey: false, model: "" };
     if ($("apiStatus")) $("apiStatus").textContent = "离线模式";
     if (showToast) toast("当前为离线模式，可使用本地规则生成。");
     return false;
@@ -871,7 +871,7 @@ function renderRun() {
   }
   reactions.innerHTML = run.reactions.map((r) => `
     <article class="card">
-      <div class="card-head"><h3>${escapeHtml(r.name)} · ${escapeHtml(r.role)}</h3>${run.source === "qwen-multi-agent" ? '<span class="pill">AI 生成</span>' : ""}</div>
+      <div class="card-head"><h3>${escapeHtml(r.name)} · ${escapeHtml(r.role)}</h3>${run.source === "cloud-multi-agent" ? '<span class="pill">AI 生成</span>' : ""}</div>
       <p>${escapeHtml(r.reaction)}</p>
       <p><strong>台词：</strong>${escapeHtml(r.dialogue)}</p>
       <p><strong>记忆调用：</strong>${escapeHtml(r.memoryUse)}</p>
@@ -1179,8 +1179,8 @@ document.querySelectorAll("[data-template]").forEach((btn) => btn.addEventListen
 $("saveProject").addEventListener("click", () => saveStore(true));
 $("runSimulationTop").addEventListener("click", runSimulation);
 $("runSimulation").addEventListener("click", runSimulation);
-$("checkApi").addEventListener("click", () => checkQwenStatus(true));
-$("starterGenerate").addEventListener("click", generateStarterWithQwen);
+$("checkApi").addEventListener("click", () => checkAiStatus(true));
+$("starterGenerate").addEventListener("click", generateStarterWithAi);
 $("starterLocal").addEventListener("click", () => {
   const data = buildLocalStarter();
   if (data) applyBootstrapProject(data, "本地");
@@ -1204,4 +1204,4 @@ writeForms();
 renderSourceAnalysis(null);
 renderAll();
 switchTab(activeTab);
-checkQwenStatus(false);
+checkAiStatus(false);

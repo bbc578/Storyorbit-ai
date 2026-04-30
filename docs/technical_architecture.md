@@ -8,7 +8,7 @@ StoryOrbit AI is a lightweight story-universe simulation product. It is designed
 Browser app -> StoryOrbit API proxy -> AI provider
 ```
 
-The current implementation is provider-neutral at the product layer. The local proxy currently supports DashScope/Qwen-compatible chat completion APIs, and the frontend labels this as cloud AI enhancement instead of tying the user experience to one provider.
+The current implementation is provider-neutral at the product layer. The local proxy supports OpenAI-compatible chat completion APIs, and the frontend labels this as cloud AI enhancement instead of tying the user experience to one provider.
 
 ## Frontend
 

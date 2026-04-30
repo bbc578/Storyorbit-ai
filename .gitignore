@@ -1,6 +1,7 @@
 # Secrets
 .env
 .env.*
+!.env.example
 *.key
 
 # Python
@@ -21,4 +22,3 @@ Thumbs.db
 
 # Logs
 *.log
-
