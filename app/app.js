@@ -234,15 +234,117 @@ function renderDashboard() {
   const characterScore = Math.min(100, p.characters.length * 22 + p.characters.filter((c) => c.memory && c.hardRules).length * 8);
   const continuityScore = Math.min(100, p.timeline.length * 18 + p.runs.length * 16);
   const exportScore = Math.min(100, worldScore * 0.35 + characterScore * 0.25 + (p.runs.length ? 40 : 0));
+  const healthScore = Math.round((worldScore * 0.3) + (characterScore * 0.25) + (continuityScore * 0.2) + (exportScore * 0.25));
+  const state = getProjectState(p, { worldScore, characterScore, continuityScore, exportScore, healthScore });
   $("dashWorldScore").textContent = Math.round(worldScore);
   $("dashCharacterScore").textContent = Math.round(characterScore);
   $("dashContinuityScore").textContent = Math.round(continuityScore);
   $("dashExportScore").textContent = Math.round(exportScore);
-  $("nextStepAdvice").textContent = [
-    "建议从一个故事点子开始：生成世界观，确认角色记忆，再运行剧情推演。",
-    "创作者可以在每一轮推演后选择最有潜力的分支，继续推进下一幕。",
-    "当故事结构稳定后，可以导出 Story Bible、角色记忆包、短剧分镜、章节大纲或项目提案。"
-  ].join("\n\n");
+  $("projectHealthScore").textContent = `${healthScore}%`;
+  $("projectHealthScore").style.setProperty("--health", `${healthScore}%`);
+  $("projectHealthTitle").textContent = state.title;
+  $("projectHealthSummary").textContent = state.summary;
+  $("projectStageLabel").textContent = state.stage;
+  $("projectStageHint").textContent = state.hint;
+  $("launchReadinessPill").textContent = state.readiness;
+  $("primaryWorkflowAction").textContent = state.primaryLabel;
+  $("primaryWorkflowAction").dataset.targetTab = state.primaryTab;
+  $("secondaryWorkflowAction").dataset.targetTab = p.runs.length ? "outputs" : "starter";
+  $("secondaryWorkflowAction").textContent = p.runs.length ? "查看交付物" : "用新手模式开始";
+  setChecked("checkStory", worldScore >= 60);
+  setChecked("checkCharacters", p.characters.length >= 3);
+  setChecked("checkEvent", Boolean(p.eventPrompt));
+  setChecked("checkRun", p.runs.length > 0);
+  setChecked("checkExport", exportScore >= 65);
+  renderWorkflowState(p);
+  renderRecentActivity(p);
+}
+
+function setChecked(id, value) {
+  const el = $(id);
+  if (el) el.checked = Boolean(value);
+}
+
+function getProjectState(p, scores) {
+  if (scores.worldScore < 60) {
+    return {
+      title: "先把故事宇宙搭起来",
+      summary: "输入一句故事点子，系统会生成世界观、核心冲突、角色和第一幕事件。",
+      stage: "创建中",
+      hint: "完成后会自动进入可编辑项目。",
+      readiness: "Draft",
+      primaryTab: "starter",
+      primaryLabel: "开始创建"
+    };
+  }
+  if (p.characters.length < 3) {
+    return {
+      title: "补齐可运行的角色阵容",
+      summary: "至少 3 个角色会让剧情推演更有冲突和分支价值。",
+      stage: "设定完善中",
+      hint: "重点补目标、秘密、恐惧和硬规则。",
+      readiness: "Setup",
+      primaryTab: "characters",
+      primaryLabel: "完善角色"
+    };
+  }
+  if (!p.eventPrompt) {
+    return {
+      title: "输入下一幕剧情事件",
+      summary: "给角色一个明确冲突，StoryOrbit 才能生成反应、分支和质检结果。",
+      stage: "准备推演",
+      hint: "事件越具体，推演越可用。",
+      readiness: "Ready",
+      primaryTab: "simulation",
+      primaryLabel: "输入事件"
+    };
+  }
+  if (!p.runs.length) {
+    return {
+      title: "运行第一次剧情推演",
+      summary: "让角色智能体、导演智能体和质检智能体共同生成下一步故事路线。",
+      stage: "待运行",
+      hint: "可使用本地规则，也可启用云端 AI 增强。",
+      readiness: "Ready",
+      primaryTab: "simulation",
+      primaryLabel: "运行推演"
+    };
+  }
+  return {
+    title: "项目已进入可交付状态",
+    summary: "你可以继续推进分支，也可以导出 Story Bible、角色记忆包、分镜、大纲或项目提案。",
+    stage: "可交付",
+    hint: `${p.runs.length} 次推演，${p.timeline.length} 个事件。`,
+    readiness: "Deliverable",
+    primaryTab: "outputs",
+    primaryLabel: "导出交付物"
+  };
+}
+
+function renderWorkflowState(p) {
+  const states = [
+    ["flowStarter", p.world.title ? "已创建" : "未开始", Boolean(p.world.title)],
+    ["flowWorld", p.world.conflict && p.world.rules ? "已完善" : "待完善", Boolean(p.world.conflict && p.world.rules)],
+    ["flowCharacters", p.characters.length >= 3 ? `${p.characters.length} 个角色` : `${p.characters.length} / 3`, p.characters.length >= 3],
+    ["flowSimulation", p.runs.length ? `${p.runs.length} 次推演` : "待运行", p.runs.length > 0],
+    ["flowOutputs", p.runs.length ? "可导出" : "未就绪", p.runs.length > 0]
+  ];
+  states.forEach(([id, text, done]) => {
+    const el = $(id);
+    if (!el) return;
+    el.textContent = text;
+    el.closest(".workflow-step")?.classList.toggle("done", done);
+  });
+}
+
+function renderRecentActivity(p) {
+  const items = [
+    p.world.title ? `项目：${p.world.title}` : "还没有项目标题",
+    p.characters.length ? `角色记忆：${p.characters.length} 个角色` : "角色记忆待创建",
+    p.runs.length ? `最近推演：第 ${p.runs[0].episode} 幕 · ${p.runs[0].eventPrompt.slice(0, 36)}` : "还没有运行剧情推演",
+    p.runs.length ? `可导出：${p.outputMode || "Story Bible"}` : "导出会在推演后解锁"
+  ];
+  $("recentActivity").innerHTML = items.map((item) => `<div class="activity-item">${escapeHtml(item)}</div>`).join("");
 }
 
 function renderStarterPreview(data) {
@@ -1137,6 +1239,10 @@ function toast(message) {
 const commonWords = new Set(["故事", "角色", "主角", "反派", "世界", "规则", "目标", "事件", "秘密", "真相", "任务", "剧情", "系统", "玩家", "身份", "集团", "宗门"]);
 
 document.querySelectorAll(".nav-item").forEach((btn) => btn.addEventListener("click", () => switchTab(btn.dataset.tab)));
+document.querySelectorAll(".workflow-step").forEach((btn) => btn.addEventListener("click", () => switchTab(btn.dataset.flowTab)));
+$("openStarterTop").addEventListener("click", () => switchTab("starter"));
+$("primaryWorkflowAction").addEventListener("click", () => switchTab($("primaryWorkflowAction").dataset.targetTab || "starter"));
+$("secondaryWorkflowAction").addEventListener("click", () => switchTab($("secondaryWorkflowAction").dataset.targetTab || "outputs"));
 $("projectSelect").addEventListener("change", () => {
   saveStore(false);
   store.activeProjectId = $("projectSelect").value;

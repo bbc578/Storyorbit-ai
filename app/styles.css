@@ -407,6 +407,170 @@ h3 {
   font-size: 13px;
 }
 
+.command-center {
+  border: 1px solid rgba(99, 151, 242, 0.28);
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgba(99, 151, 242, 0.16), transparent 42%),
+    linear-gradient(90deg, rgba(47, 183, 166, 0.14), transparent 64%),
+    rgba(20, 27, 36, 0.96);
+  box-shadow: var(--shadow);
+  padding: 22px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 0.34fr);
+  gap: 18px;
+  align-items: center;
+}
+
+.command-main {
+  display: grid;
+  gap: 10px;
+}
+
+.eyebrow {
+  color: var(--teal);
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0;
+}
+
+.command-main h2 {
+  font-size: 24px;
+}
+
+.command-main p {
+  color: var(--muted);
+  line-height: 1.58;
+  max-width: 760px;
+}
+
+.command-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.health-card {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(14, 20, 28, 0.64);
+  padding: 14px;
+  display: grid;
+  grid-template-columns: 86px minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+}
+
+.health-ring {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--ink);
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  background:
+    radial-gradient(circle at center, #111923 55%, transparent 56%),
+    conic-gradient(var(--teal) var(--health, 0%), rgba(174, 183, 197, 0.18) 0);
+}
+
+.health-card strong {
+  display: block;
+  font-size: 16px;
+}
+
+.health-card span {
+  display: block;
+  color: var(--muted);
+  margin-top: 5px;
+  line-height: 1.45;
+  font-size: 13px;
+}
+
+.workflow-strip {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.workflow-step {
+  min-height: 86px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(25, 31, 41, 0.78);
+  color: var(--ink);
+  text-align: left;
+  padding: 12px;
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  grid-template-areas:
+    "num title"
+    "num meta";
+  gap: 4px 10px;
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.workflow-step:hover {
+  transform: translateY(-1px);
+  border-color: rgba(225, 183, 90, 0.62);
+}
+
+.workflow-step strong {
+  grid-area: num;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #20130d;
+  background: var(--amber);
+  font-size: 13px;
+}
+
+.workflow-step span {
+  grid-area: title;
+  font-weight: 760;
+}
+
+.workflow-step small {
+  grid-area: meta;
+  color: var(--muted);
+}
+
+.workflow-step.done {
+  border-color: rgba(86, 196, 135, 0.42);
+  background: rgba(35, 67, 58, 0.34);
+}
+
+.workflow-step.done strong {
+  background: var(--green);
+}
+
+.product-checklist label {
+  display: flex;
+  grid-template-columns: none;
+  align-items: center;
+  gap: 10px;
+}
+
+.activity-list {
+  display: grid;
+  gap: 9px;
+}
+
+.activity-item {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(14, 20, 28, 0.54);
+  color: var(--muted);
+  padding: 11px 12px;
+  line-height: 1.45;
+}
+
 .panel {
   min-width: 0;
   padding: 19px;
@@ -789,9 +953,11 @@ textarea:focus {
     height: auto;
   }
 
+  .command-center,
   .layout-two,
   .branch-grid,
-  .metric-grid {
+  .metric-grid,
+  .workflow-strip {
     grid-template-columns: 1fr;
   }
 }
@@ -810,8 +976,13 @@ textarea:focus {
   .form-grid,
   .sim-settings,
   .check-grid,
-  .progress-steps {
+  .progress-steps,
+  .health-card {
     grid-template-columns: 1fr;
+  }
+
+  .workflow-step {
+    min-height: 72px;
   }
 
   h1 {

@@ -70,6 +70,7 @@
           <p id="pageSubtitle">从设定、资料、角色、推演、压力测试到导出，完成一个可落地的故事项目。</p>
         </div>
         <div class="top-actions">
+          <button class="btn" id="openStarterTop">新建故事</button>
           <button class="btn" id="saveProject">保存</button>
           <button class="btn primary" id="runSimulationTop">运行推演</button>
         </div>
@@ -91,29 +92,54 @@
           <article class="metric"><strong id="dashContinuityScore">0</strong><span>连续剧情能力</span></article>
           <article class="metric"><strong id="dashExportScore">0</strong><span>可交付程度</span></article>
         </div>
+
+        <section class="command-center">
+          <div class="command-main">
+            <span class="eyebrow">Project Workspace</span>
+            <h2 id="projectHealthTitle">准备创建故事项目</h2>
+            <p id="projectHealthSummary">从一个故事点子开始，逐步完成世界观、角色、推演和导出。</p>
+            <div class="command-actions">
+              <button class="btn primary" id="primaryWorkflowAction">开始下一步</button>
+              <button class="btn" id="secondaryWorkflowAction">查看交付物</button>
+            </div>
+          </div>
+          <div class="health-card">
+            <div class="health-ring" id="projectHealthScore">0%</div>
+            <div>
+              <strong id="projectStageLabel">初始化</strong>
+              <span id="projectStageHint">完成关键步骤后即可导出。</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="workflow-strip" aria-label="项目流程">
+          <button class="workflow-step" data-flow-tab="starter"><strong>1</strong><span>创建故事</span><small id="flowStarter">未开始</small></button>
+          <button class="workflow-step" data-flow-tab="world"><strong>2</strong><span>完善设定</span><small id="flowWorld">未开始</small></button>
+          <button class="workflow-step" data-flow-tab="characters"><strong>3</strong><span>角色记忆</span><small id="flowCharacters">未开始</small></button>
+          <button class="workflow-step" data-flow-tab="simulation"><strong>4</strong><span>运行推演</span><small id="flowSimulation">未开始</small></button>
+          <button class="workflow-step" data-flow-tab="outputs"><strong>5</strong><span>导出交付</span><small id="flowOutputs">未开始</small></button>
+        </section>
+
         <div class="layout-two">
           <section class="panel">
             <header class="panel-head">
-              <h2>产品闭环</h2>
-              <span class="pill">MVP Complete</span>
+              <h2>项目启动清单</h2>
+              <span class="pill" id="launchReadinessPill">Draft</span>
             </header>
-            <div class="checklist">
-              <label><input type="checkbox" checked disabled> 多项目管理</label>
-              <label><input type="checkbox" checked disabled> 资料粘贴 / 文档导入</label>
-              <label><input type="checkbox" checked disabled> 角色长期记忆与人设规则</label>
-              <label><input type="checkbox" checked disabled> 连续剧情推进</label>
-              <label><input type="checkbox" checked disabled> 专业压力测试维度</label>
-              <label><input type="checkbox" checked disabled> 角色关系图与剧情分支树</label>
-              <label><input type="checkbox" checked disabled> 三套真实案例模板</label>
-              <label><input type="checkbox" checked disabled> 云端 AI 增强与离线回退</label>
+            <div class="checklist product-checklist">
+              <label><input type="checkbox" id="checkStory" disabled> 已有故事核心设定</label>
+              <label><input type="checkbox" id="checkCharacters" disabled> 至少 3 个可运行角色</label>
+              <label><input type="checkbox" id="checkEvent" disabled> 已输入下一幕剧情事件</label>
+              <label><input type="checkbox" id="checkRun" disabled> 已完成一次剧情推演</label>
+              <label><input type="checkbox" id="checkExport" disabled> 已准备导出交付物</label>
             </div>
           </section>
           <section class="panel">
             <header class="panel-head">
-              <h2>下一步建议</h2>
-              <span class="pill">Production Ready</span>
+              <h2>最近产出</h2>
+              <span class="pill">Autosaved</span>
             </header>
-            <div class="artifact" id="nextStepAdvice"></div>
+            <div class="activity-list" id="recentActivity"></div>
           </section>
         </div>
       </section>
