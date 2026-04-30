@@ -1,7 +1,9 @@
 import json
+import http.client
 import os
 import re
 import sys
+import time
 import traceback
 import urllib.error
 import urllib.request
@@ -19,6 +21,7 @@ BASE_URL = (
 )
 MODEL = os.getenv("STORYORBIT_MODEL") or os.getenv("DASHSCOPE_MODEL") or "qwen-plus"
 MAX_CHARACTER_WORKERS = int(os.getenv("STORYORBIT_AGENT_WORKERS", "4"))
+AI_RETRIES = int(os.getenv("STORYORBIT_AI_RETRIES", "2"))
 
 
 STRESS_DIMENSIONS = [
@@ -53,18 +56,29 @@ def call_ai(messages, model=None, temperature=0.7):
         },
         ensure_ascii=False,
     ).encode("utf-8")
-    req = urllib.request.Request(
-        url,
-        data=body,
-        headers={
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json",
-        },
-        method="POST",
-    )
-    with urllib.request.urlopen(req, timeout=120) as response:
-        data = json.loads(response.read().decode("utf-8"))
-    return data["choices"][0]["message"]["content"]
+    last_error = None
+    for attempt in range(AI_RETRIES + 1):
+        req = urllib.request.Request(
+            url,
+            data=body,
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json",
+            },
+            method="POST",
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=120) as response:
+                data = json.loads(response.read().decode("utf-8"))
+            return data["choices"][0]["message"]["content"]
+        except urllib.error.HTTPError:
+            raise
+        except (urllib.error.URLError, http.client.RemoteDisconnected, TimeoutError) as exc:
+            last_error = exc
+            if attempt >= AI_RETRIES:
+                break
+            time.sleep(0.8 * (attempt + 1))
+    raise RuntimeError(f"AI provider connection failed after {AI_RETRIES + 1} attempts: {last_error}")
 
 
 def clean_api_key(value):
@@ -108,6 +122,40 @@ def ask_json(agent_name, system_prompt, user_prompt, temperature=0.7):
         return extract_json(content), content
     except Exception as exc:
         raise ValueError(f"{agent_name} returned invalid JSON: {exc}\nRaw response:\n{content}") from exc
+
+
+def character_logic_guardrails():
+    return """
+角色逻辑硬约束：
+1. 角色行动必须由“公开目标、隐藏目标、恐惧、关系记忆”之一直接触发。
+2. 不允许为了制造反转而让角色突然做违背自身利益的事。
+3. reaction 必须包含：行动原因、具体行动、承担的风险或代价。
+4. dialogue 不能只耍帅，必须暴露态度、试探、威胁或掩饰。
+""".strip()
+
+
+def story_logic_guardrails(context):
+    return f"""
+剧情逻辑硬约束：
+1. 每条路线必须遵守“原因 -> 行动 -> 阻碍 -> 代价 -> 后果”的因果链。
+2. 不允许用“刚好、突然、无意中、神秘人万能推动”解决关键问题。
+3. 每个 nextEvent 必须能直接由当前事件推出，且能作为下一轮推演输入。
+4. 如果出现反转，必须说明反转线索此前如何埋下。
+5. 剧情必须围绕核心冲突推进：{context["world"].get("conflict")}
+6. 必须遵守世界规则：{context["world"].get("rules")}
+""".strip()
+
+
+def bootstrap_logic_guardrails(idea):
+    return f"""
+故事宇宙生成逻辑硬约束：
+1. 用户点子是唯一核心来源，不能生成和点子无关的固定模板。
+2. Story Bible 必须说明：事件为什么开始、谁受益、谁受损、失败代价是什么。
+3. 每个角色必须和核心冲突有利益关系，不能只是功能性配角。
+4. 第一幕事件必须包含：触发原因、地点限制、时间压力、主角选择、失败后果。
+5. 禁止只堆设定名词；所有设定都必须能推动人物行动。
+用户点子：{idea}
+""".strip()
 
 
 def build_context(payload):
@@ -182,6 +230,7 @@ def character_agent(context, character):
 长期记忆：{character.get("memory")}
 人设硬规则：{character.get("hardRules")}
 """.strip()
+    user = f"{user}\n\n{character_logic_guardrails()}"
     data, raw = ask_json(f"CharacterAgent:{character.get('name')}", system, user, temperature=0.75)
     return {
         "name": str(data.get("name") or character.get("name") or "未知角色"),
@@ -228,6 +277,7 @@ def director_agent(context, reactions):
 角色反应：
 {json.dumps([{k: v for k, v in item.items() if not k.startswith("_")} for item in reactions], ensure_ascii=False)}
 """.strip()
+    user = f"{user}\n\n{story_logic_guardrails(context)}"
     data, raw = ask_json("DirectorAgent", system, user, temperature=0.72)
     branches = data.get("branches") if isinstance(data.get("branches"), list) else []
     return normalize_branches(branches), raw
@@ -268,6 +318,7 @@ stress 必须包含这 10 个维度，名称必须完全一致：
 剧情分支：
 {json.dumps(branches, ensure_ascii=False)}
 """.strip()
+    user = f"{user}\n\n{story_logic_guardrails(context)}"
     data, raw = ask_json("CriticAgent", system, user, temperature=0.55)
     return normalize_stress(data.get("stress")), normalize_list(data.get("advice"), "需要补充更具体的修改建议。"), raw
 
@@ -296,6 +347,7 @@ def scriptwriter_agent(context, reactions, branches):
 角色反应：{json.dumps([{k: v for k, v in item.items() if not k.startswith("_")} for item in reactions], ensure_ascii=False)}
 剧情分支：{json.dumps(branches, ensure_ascii=False)}
 """.strip()
+    user = f"{user}\n\n{story_logic_guardrails(context)}"
     data, raw = ask_json("ScriptwriterAgent", system, user, temperature=0.68)
     return normalize_list(data.get("script"), "模型未返回交付节点。"), raw
 
@@ -350,6 +402,74 @@ def normalize_stress(value):
     return result
 
 
+def fallback_character_reaction(character, event, reason):
+    name = str(character.get("name") or "Unknown Character")
+    role = str(character.get("role") or "Character")
+    goal = str(character.get("goal") or "protect their current interest")
+    hidden = str(character.get("hidden") or "keeps part of the truth hidden")
+    return {
+        "name": name,
+        "role": role,
+        "reaction": f"{name} reacts cautiously to the event, protects the goal '{goal}', and avoids exposing the hidden motive '{hidden}'.",
+        "dialogue": "I need one more moment before I choose a side.",
+        "memoryUse": f"Fallback response used because this character agent failed: {reason}",
+        "_raw": "",
+        "_fallback": True,
+    }
+
+
+def fallback_branches(context, reactions, reason):
+    event = context.get("event") or "the current conflict"
+    names = "、".join([item.get("name", "角色") for item in reactions[:3]]) or "主要角色"
+    return [
+        {
+            "title": "公开冲突线",
+            "score": 74,
+            "summary": f"{names}围绕“{event}”正面摊牌，快速放大冲突。",
+            "nextEvent": f"让最有信息优势的角色公开一个关键证据，迫使其他人立刻站队：{event}",
+            "payoff": f"云端导演智能体暂不可用，已使用本地降级分支：{reason}",
+        },
+        {
+            "title": "秘密调查线",
+            "score": 70,
+            "summary": "主角暂时退让，转入调查和伏笔回收。",
+            "nextEvent": "主角发现一个与当前事件相矛盾的旧记录，并开始追查来源。",
+            "payoff": "适合悬疑推进，但需要补充明确线索。",
+        },
+        {
+            "title": "关系反转线",
+            "score": 68,
+            "summary": "表面敌人给出帮助，制造信任危机。",
+            "nextEvent": "反派主动提供帮助，但要求主角交出一个重要秘密作为交换。",
+            "payoff": "适合制造人物张力，但需要控制巧合风险。",
+        },
+    ]
+
+
+def fallback_stress(reason):
+    stress = [
+        {"name": name, "score": 72 if not risk else 46, "risk": risk}
+        for name, risk in STRESS_DIMENSIONS
+    ]
+    advice = [
+        f"云端质检智能体暂不可用，已使用本地降级质检：{reason}",
+        "补充事件触发原因，避免剧情只靠巧合推进。",
+        "让每个角色的行动都明确服务于自己的目标、秘密或恐惧。",
+    ]
+    return stress, advice
+
+
+def fallback_script(context, branches, reason):
+    mode = context.get("output_mode") or "story output"
+    lead = branches[0] if branches else {}
+    return [
+        f"{mode} 1：承接当前事件，先呈现最强冲突点。",
+        f"{mode} 2：推进路线“{lead.get('title', '公开冲突线')}”，让角色作出不可逆选择。",
+        f"{mode} 3：插入一个能回收伏笔或制造新悬念的细节。",
+        f"{mode} 4：以新的证据、背叛或选择作为结尾钩子。降级原因：{reason}",
+    ]
+
+
 def clamp(value, min_value, max_value, default=0):
     try:
         number = int(round(float(value)))
@@ -366,22 +486,46 @@ def run_multi_agent_simulation(payload):
 
     reactions = []
     raw_agent_outputs = {}
+    fallback_count = 0
     max_workers = max(1, min(MAX_CHARACTER_WORKERS, len(characters)))
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         futures = {executor.submit(character_agent, context, character): character for character in characters}
         for future in as_completed(futures):
             character = futures[future]
-            reaction = future.result()
+            try:
+                reaction = future.result()
+            except Exception as exc:
+                fallback_count += 1
+                reaction = fallback_character_reaction(character, context.get("event", ""), str(exc))
             raw_agent_outputs[f"character:{character.get('name')}"] = reaction.pop("_raw", "")
+            if reaction.pop("_fallback", False):
+                raw_agent_outputs[f"character:{character.get('name')}:fallback"] = "true"
             reactions.append(reaction)
 
     # Preserve selected character order after parallel calls.
     order = {character.get("name"): index for index, character in enumerate(characters)}
     reactions.sort(key=lambda item: order.get(item.get("name"), 999))
 
-    branches, director_raw = director_agent(context, reactions)
-    stress, advice, critic_raw = critic_agent(context, reactions, branches)
-    script, scriptwriter_raw = scriptwriter_agent(context, reactions, branches)
+    try:
+        branches, director_raw = director_agent(context, reactions)
+    except Exception as exc:
+        fallback_count += 1
+        branches = fallback_branches(context, reactions, str(exc))
+        director_raw = f"fallback: {exc}"
+
+    try:
+        stress, advice, critic_raw = critic_agent(context, reactions, branches)
+    except Exception as exc:
+        fallback_count += 1
+        stress, advice = fallback_stress(str(exc))
+        critic_raw = f"fallback: {exc}"
+
+    try:
+        script, scriptwriter_raw = scriptwriter_agent(context, reactions, branches)
+    except Exception as exc:
+        fallback_count += 1
+        script = fallback_script(context, branches, str(exc))
+        scriptwriter_raw = f"fallback: {exc}"
 
     raw_agent_outputs["director"] = director_raw
     raw_agent_outputs["critic"] = critic_raw
@@ -394,10 +538,10 @@ def run_multi_agent_simulation(payload):
         "advice": advice,
         "script": script,
         "agentTrace": [
-            {"name": "Character Agents", "count": len(reactions), "status": "completed"},
-            {"name": "Director Agent", "count": 1, "status": "completed"},
-            {"name": "Critic Agent", "count": 1, "status": "completed"},
-            {"name": "Scriptwriter Agent", "count": 1, "status": "completed"},
+            {"name": "Character Agents", "count": len(reactions), "status": "degraded" if fallback_count else "completed"},
+            {"name": "Director Agent", "count": 1, "status": "completed" if not str(director_raw).startswith("fallback:") else "fallback"},
+            {"name": "Critic Agent", "count": 1, "status": "completed" if not str(critic_raw).startswith("fallback:") else "fallback"},
+            {"name": "Scriptwriter Agent", "count": 1, "status": "completed" if not str(scriptwriter_raw).startswith("fallback:") else "fallback"},
         ],
         "rawAgents": raw_agent_outputs,
     }
@@ -463,7 +607,8 @@ def bootstrap_story_universe(payload):
 风格：{tone}
 目标受众：{audience}
 """.strip()
-    data, raw = ask_json("BootstrapAgent", system, user, temperature=0.78)
+    user = f"{user}\n\n{bootstrap_logic_guardrails(idea)}"
+    data, raw = ask_json("BootstrapAgent", system, user, temperature=0.72)
     return normalize_bootstrap(data), raw
 
 

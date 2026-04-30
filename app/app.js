@@ -515,6 +515,7 @@ function buildLocalStarter() {
   const profile = pickIdeaProfile(idea, genre);
   const title = profile.title;
   const characters = localCharactersForIdea(idea, genre, characterCount, profile);
+  const logicFrame = `因果链：${profile.lead}不是随机卷入事件，而是因为“${profile.coreObject}”和自己的身份记录发生冲突；${profile.protector}阻止追查是为了避免更大证据被销毁；${profile.villain}封锁现场是因为继续调查会损害其既得利益；如果${profile.lead}失败，关键记录会被永久改写。`;
   const outputMode = genre === "游戏任务线" ? "游戏任务链" : genre.includes("网文") ? "网文章节大纲" : "短剧分镜";
   return {
     world: {
@@ -522,12 +523,12 @@ function buildLocalStarter() {
       genre,
       audience,
       tone,
-      conflict: idea,
+      conflict: `${idea}\n\n${logicFrame}`,
       rules: `核心规则：围绕“${profile.coreObject}”的每一次推进，都会触发一个现实代价。\n禁忌设定：任何角色直接说出最终真相，都会导致相关证据被抹除或改写。\n场景规则：“${profile.setting}”是第一层真相入口，但不是最终现场。`,
       foreshadowing: `${profile.lead}身上的异常编号、${profile.protector}保存的旧证据、${profile.villain}回避的监控死角、“${profile.coreObject}”第一次出现时留下的错误时间戳。`
     },
     characters,
-    eventPrompt: `第一幕：${profile.lead}在${profile.setting}发现“${profile.coreObject}”与自己身份有关的第一份证据；${profile.protector}试图阻止他继续追查，${profile.villain}同时启动封锁程序，并宣布如果倒计时结束，和${profile.lead}有关的一段记录将被永久改写。`,
+    eventPrompt: `第一幕：${profile.lead}因为“${profile.coreObject}”与自己的身份记录发生冲突，被迫进入${profile.setting}核对证据；${profile.protector}知道继续追查会触发证据销毁机制，所以试图阻止他；${profile.villain}为了保护既得利益启动封锁程序，并宣布如果倒计时结束，和${profile.lead}有关的一段记录将被永久改写。`,
     outputMode,
     sourceDraft: `故事点子：${idea}\n类型：${genre}\n风格：${tone}\n目标受众：${audience}\n本地生成摘要：故事围绕“${profile.coreObject}”展开，第一真相入口位于“${profile.setting}”，主角身份和证据改写机制是连续推演核心。`
   };
