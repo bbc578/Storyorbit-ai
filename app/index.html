@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>StoryOrbit AI Studio</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">SO</div>
+        <div>
+          <strong>StoryOrbit AI</strong>
+          <span>故事宇宙仿真实验室</span>
+        </div>
+      </div>
+
+      <section class="side-panel">
+        <div class="side-title">项目库</div>
+        <select id="projectSelect"></select>
+        <div class="side-actions">
+          <button class="btn small" id="newBlankProject">空白</button>
+          <button class="btn small" id="duplicateProject">复制</button>
+          <button class="btn small danger" id="deleteProject">删除</button>
+        </div>
+      </section>
+
+      <nav class="nav" aria-label="主导航">
+        <button class="nav-item active" data-tab="dashboard">总览</button>
+        <button class="nav-item" data-tab="starter">新手模式</button>
+        <button class="nav-item" data-tab="world">世界设定</button>
+        <button class="nav-item" data-tab="sources">资料导入</button>
+        <button class="nav-item" data-tab="characters">角色记忆</button>
+        <button class="nav-item" data-tab="simulation">剧情推演</button>
+        <button class="nav-item" data-tab="visuals">关系与分支</button>
+        <button class="nav-item" data-tab="stress">压力测试</button>
+        <button class="nav-item" data-tab="outputs">交付物</button>
+      </nav>
+
+      <section class="side-panel">
+        <div class="side-title">当前项目</div>
+        <div class="mini-stat"><span>角色</span><strong id="statCharacters">0</strong></div>
+        <div class="mini-stat"><span>资料</span><strong id="statSources">0</strong></div>
+        <div class="mini-stat"><span>事件</span><strong id="statEvents">0</strong></div>
+        <div class="mini-stat"><span>推演</span><strong id="statRuns">0</strong></div>
+        <div class="mini-stat"><span>Token 预估</span><strong id="statTokens">0k</strong></div>
+      </section>
+
+      <section class="side-panel">
+        <div class="side-title">AI 引擎</div>
+        <div class="mini-stat"><span>生成模式</span><strong id="apiStatus">检测中</strong></div>
+        <label class="api-toggle"><input type="checkbox" id="useQwenApi"> 使用云端 AI 增强</label>
+        <button class="btn small" id="checkApi">检查 AI 状态</button>
+      </section>
+
+      <section class="side-panel">
+        <div class="side-title">案例模板</div>
+        <button class="template-btn" data-template="urban">都市短剧：霓虹城继承人</button>
+        <button class="template-btn" data-template="fantasy">玄幻网文：烬海王座</button>
+        <button class="template-btn" data-template="game">游戏任务线：灰港协议</button>
+      </section>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <h1 id="pageTitle">总览</h1>
+          <p id="pageSubtitle">从设定、资料、角色、推演、压力测试到导出，完成一个可落地的故事项目。</p>
+        </div>
+        <div class="top-actions">
+          <button class="btn" id="saveProject">保存</button>
+          <button class="btn primary" id="runSimulationTop">运行推演</button>
+        </div>
+      </header>
+
+      <section class="progress-panel" id="progressPanel" hidden>
+        <div class="progress-head">
+          <strong id="progressTitle">任务运行中</strong>
+          <span id="progressPercent">0%</span>
+        </div>
+        <div class="progress-track"><span id="progressBar"></span></div>
+        <div class="progress-steps" id="progressSteps"></div>
+      </section>
+
+      <section class="tab-panel active" id="tab-dashboard">
+        <div class="metric-grid">
+          <article class="metric"><strong id="dashWorldScore">0</strong><span>世界完整度</span></article>
+          <article class="metric"><strong id="dashCharacterScore">0</strong><span>角色完成度</span></article>
+          <article class="metric"><strong id="dashContinuityScore">0</strong><span>连续剧情能力</span></article>
+          <article class="metric"><strong id="dashExportScore">0</strong><span>可交付程度</span></article>
+        </div>
+        <div class="layout-two">
+          <section class="panel">
+            <header class="panel-head">
+              <h2>产品闭环</h2>
+              <span class="pill">MVP Complete</span>
+            </header>
+            <div class="checklist">
+              <label><input type="checkbox" checked disabled> 多项目管理</label>
+              <label><input type="checkbox" checked disabled> 资料粘贴 / 文档导入</label>
+              <label><input type="checkbox" checked disabled> 角色长期记忆与人设规则</label>
+              <label><input type="checkbox" checked disabled> 连续剧情推进</label>
+              <label><input type="checkbox" checked disabled> 专业压力测试维度</label>
+              <label><input type="checkbox" checked disabled> 角色关系图与剧情分支树</label>
+              <label><input type="checkbox" checked disabled> 三套真实案例模板</label>
+              <label><input type="checkbox" checked disabled> 云端 AI 增强与离线回退</label>
+            </div>
+          </section>
+          <section class="panel">
+            <header class="panel-head">
+              <h2>下一步建议</h2>
+              <span class="pill">Production Ready</span>
+            </header>
+            <div class="artifact" id="nextStepAdvice"></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="tab-starter">
+        <div class="layout-two">
+          <section class="panel">
+            <header class="panel-head">
+              <h2>一句话生成故事宇宙</h2>
+              <span class="pill">Beginner Mode</span>
+            </header>
+            <label>故事点子
+              <textarea id="starterIdea" rows="6" placeholder="例如：一个失忆货运员发现自己能打开雾港所有封存仓库，但每打开一个仓库，就会有一个认识他的人被系统删除。"></textarea>
+            </label>
+            <div class="form-grid">
+              <label>类型
+                <select id="starterGenre">
+                  <option>都市悬疑短剧</option>
+                  <option>现代逆袭短剧</option>
+                  <option>玄幻网文</option>
+                  <option>科幻冒险</option>
+                  <option>女性向情感</option>
+                  <option>游戏任务线</option>
+                </select>
+              </label>
+              <label>风格
+                <select id="starterTone">
+                  <option>紧张、反转、强钩子</option>
+                  <option>热血、成长、爽感</option>
+                  <option>克制、悬疑、压迫</option>
+                  <option>轻喜、治愈、关系感</option>
+                  <option>史诗、宏大、命运感</option>
+                </select>
+              </label>
+              <label>目标受众
+                <input id="starterAudience" placeholder="例如：18-30 岁短剧用户">
+              </label>
+              <label>角色数量
+                <select id="starterCharacterCount">
+                  <option value="3">3 个核心角色</option>
+                  <option value="4">4 个主要角色</option>
+                  <option value="5">5 个角色矩阵</option>
+                </select>
+              </label>
+            </div>
+            <div class="button-row">
+              <button class="btn" id="starterLocal">本地快速生成</button>
+              <button class="btn primary" id="starterGenerate">AI 生成故事宇宙</button>
+            </div>
+          </section>
+
+          <section class="panel">
+            <header class="panel-head">
+              <h2>生成结果预览</h2>
+              <span class="pill">Auto Fill</span>
+            </header>
+            <div class="artifact" id="starterPreview">输入一个故事点子后，系统会自动生成世界设定、角色卡、长期伏笔和第一幕事件，并填入当前项目。</div>
+          </section>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="tab-world">
+        <div class="layout-two">
+          <section class="panel">
+            <header class="panel-head">
+              <h2>Story Bible</h2>
+              <span class="pill">核心设定</span>
+            </header>
+            <div class="form-grid">
+              <label>项目名称<input id="worldTitle" placeholder="例如：霓虹城继承人"></label>
+              <label>类型
+                <select id="worldGenre">
+                  <option>都市悬疑短剧</option>
+                  <option>现代逆袭短剧</option>
+                  <option>玄幻网文</option>
+                  <option>科幻冒险</option>
+                  <option>女性向情感</option>
+                  <option>游戏任务线</option>
+                </select>
+              </label>
+              <label>目标受众<input id="worldAudience" placeholder="例如：18-30 岁短剧用户"></label>
+              <label>情绪基调
+                <select id="worldTone">
+                  <option>紧张、反转、强钩子</option>
+                  <option>热血、成长、爽感</option>
+                  <option>克制、悬疑、压迫</option>
+                  <option>轻喜、治愈、关系感</option>
+                  <option>史诗、宏大、命运感</option>
+                </select>
+              </label>
+            </div>
+            <label>核心冲突<textarea id="worldConflict" rows="4"></textarea></label>
+            <label>世界规则 / 禁忌设定<textarea id="worldRules" rows="5"></textarea></label>
+            <label>长期伏笔<textarea id="worldForeshadowing" rows="4" placeholder="写下未来需要回收的伏笔、秘密、误导信息。"></textarea></label>
+          </section>
+
+          <section class="panel">
+            <header class="panel-head">
+              <h2>故事摘要</h2>
+              <span class="pill">自动整理</span>
+            </header>
+            <div class="artifact" id="biblePreview"></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="tab-sources">
+        <div class="layout-two">
+          <section class="panel">
+            <header class="panel-head">
+              <h2>资料导入</h2>
+              <span class="pill">World Parser</span>
+            </header>
+            <label>资料标题<input id="sourceTitle" placeholder="例如：第一季大纲 / 人物小传 / 世界观设定"></label>
+            <label>粘贴资料<textarea id="sourceText" rows="10" placeholder="支持粘贴设定、章节草稿、角色小传、任务文档。"></textarea></label>
+            <label>导入本地 .txt / .md / .json 文件<input type="file" id="sourceFile" accept=".txt,.md,.json"></label>
+            <div class="button-row">
+              <button class="btn" id="parseSource">分析资料</button>
+              <button class="btn primary" id="addSource">加入资料库</button>
+            </div>
+          </section>
+          <section class="panel">
+            <header class="panel-head">
+              <h2>抽取结果</h2>
+              <span class="pill">Heuristic</span>
+            </header>
+            <div class="artifact" id="sourceAnalysis"></div>
+          </section>
+        </div>
+        <section class="panel full">
+          <header class="panel-head">
+            <h2>资料库</h2>
+            <span class="pill" id="sourceCountPill">0 份资料</span>
+          </header>
+          <div class="cards" id="sourceList"></div>
+        </section>
+      </section>
+
+      <section class="tab-panel" id="tab-characters">
+        <div class="layout-two">
+          <section class="panel">
+            <header class="panel-head">
+              <h2>创建角色</h2>
+              <span class="pill">Character Memory</span>
+            </header>
+            <div class="form-grid">
+              <label>名字<input id="characterName"></label>
+              <label>定位
+                <select id="characterRole">
+                  <option>主角</option>
+                  <option>反派</option>
+                  <option>保护者</option>
+                  <option>盟友</option>
+                  <option>背叛者</option>
+                  <option>导师</option>
+                  <option>观众代理</option>
+                </select>
+              </label>
+              <label>表层目标<input id="characterGoal"></label>
+              <label>隐藏目标<input id="characterHidden"></label>
+              <label>恐惧 / 弱点<input id="characterFear"></label>
+              <label>说话风格
+                <select id="characterSpeech">
+                  <option>克制、短句、藏信息</option>
+                  <option>强势、压迫、反问</option>
+                  <option>温柔、回避、保护性表达</option>
+                  <option>玩世不恭、讽刺、节奏快</option>
+                  <option>理性、分析、像任务指令</option>
+                  <option>古典、庄重、带宿命感</option>
+                </select>
+              </label>
+            </div>
+            <label>关系记忆<textarea id="characterRelations" rows="4"></textarea></label>
+            <label>长期记忆<textarea id="characterMemory" rows="4" placeholder="角色记得哪些关键事件、承诺、创伤或秘密。"></textarea></label>
+            <label>不可违反的人设规则<textarea id="characterHardRules" rows="3" placeholder="例如：绝不会主动伤害主角；不能说出真实身份。"></textarea></label>
+            <div class="button-row">
+              <button class="btn" id="clearCharacterForm">清空</button>
+              <button class="btn primary" id="addCharacter">加入角色宇宙</button>
+            </div>
+          </section>
+          <section class="panel">
+            <header class="panel-head">
+              <h2>角色矩阵</h2>
+              <span class="pill" id="characterCountPill">0 个角色</span>
+            </header>
+            <div class="cards" id="characterList"></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="tab-simulation">
+        <div class="layout-two">
+          <section class="panel">
+            <header class="panel-head">
+              <h2>剧情事件</h2>
+              <span class="pill">Orbit Simulation</span>
+            </header>
+            <label>当前事件<textarea id="eventPrompt" rows="5"></textarea></label>
+            <div class="sim-settings">
+              <label>输出格式
+                <select id="outputMode">
+                  <option>短剧分镜</option>
+                  <option>网文章节大纲</option>
+                  <option>游戏任务链</option>
+                </select>
+              </label>
+              <label>剧情强度<input type="range" id="intensity" min="1" max="5" value="4"></label>
+            </div>
+            <div>
+              <div class="field-title">参与角色</div>
+              <div class="check-grid" id="simulationCharacterChecks"></div>
+            </div>
+            <div class="button-row">
+              <button class="btn" id="continueSelectedBranch">选择分支并推进下一幕</button>
+              <button class="btn primary" id="runSimulation">运行剧情推演</button>
+            </div>
+          </section>
+          <section class="panel">
+            <header class="panel-head">
+              <h2>角色反应</h2>
+              <span class="pill">多角色</span>
+            </header>
+            <div class="cards" id="reactionList"></div>
+          </section>
+        </div>
+        <section class="panel full">
+          <header class="panel-head">
+            <h2>剧情分支</h2>
+            <span class="pill">点击选择路线</span>
+          </header>
+          <div class="branch-grid" id="branchList"></div>
+        </section>
+      </section>
+
+      <section class="tab-panel" id="tab-visuals">
+        <div class="layout-two">
+          <section class="panel">
+            <header class="panel-head">
+              <h2>角色关系图</h2>
+              <span class="pill">Network</span>
+            </header>
+            <div class="graph" id="relationshipGraph"></div>
+          </section>
+          <section class="panel">
+            <header class="panel-head">
+              <h2>剧情分支树</h2>
+              <span class="pill">Branch Tree</span>
+            </header>
+            <div class="tree" id="branchTree"></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="tab-stress">
+        <div class="layout-two">
+          <section class="panel">
+            <header class="panel-head">
+              <h2>专业压力测试</h2>
+              <span class="pill">10 维评审</span>
+            </header>
+            <div id="stressReport" class="stress-list"></div>
+          </section>
+          <section class="panel">
+            <header class="panel-head">
+              <h2>修改建议</h2>
+              <span class="pill">Reviewer</span>
+            </header>
+            <div class="artifact" id="revisionAdvice"></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="tab-outputs">
+        <div class="layout-two">
+          <section class="panel">
+            <header class="panel-head">
+              <h2>交付物生成</h2>
+              <span class="pill">Export</span>
+            </header>
+            <div class="button-row wrap">
+              <button class="btn" data-output="bible">Story Bible</button>
+              <button class="btn" data-output="memory">角色记忆包</button>
+              <button class="btn" data-output="script">短剧分镜</button>
+              <button class="btn" data-output="outline">连载大纲</button>
+              <button class="btn" data-output="game">游戏任务链</button>
+              <button class="btn" data-output="pitch">项目提案</button>
+              <button class="btn primary" id="downloadMarkdown">导出 Markdown</button>
+            </div>
+            <textarea id="outputText" rows="20" spellcheck="false"></textarea>
+          </section>
+          <section class="panel">
+            <header class="panel-head">
+              <h2>交付说明</h2>
+              <span class="pill">Export Ready</span>
+            </header>
+            <div class="artifact">
+你可以将当前故事项目导出为：
+
+1. Story Bible：用于统一世界观、规则和长期伏笔。
+2. 角色记忆包：用于维护角色目标、秘密、关系和不可违反的人设。
+3. 剧情分镜 / 章节大纲 / 游戏任务链：用于进入实际创作。
+4. 项目提案：用于和团队、客户或合作方沟通故事卖点。
+            </div>
+          </section>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="./config.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>
