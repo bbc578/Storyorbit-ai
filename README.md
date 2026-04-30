@@ -27,7 +27,7 @@ StoryOrbit_AI/
     config.js             Frontend API endpoint config
   server/
     server.py             Local/cloud API proxy and multi-agent orchestration
-  docs/                   Product docs and application materials
+  docs/                   Product docs, user guide, and examples
   DEPLOY.md               Deployment guide
   start-qwen-server.bat   Windows launcher for local AI proxy
   start-qwen-server.ps1
@@ -94,4 +94,3 @@ This is a working MVP:
 - Do not commit `.env` files or API keys.
 - If an API key was ever pasted into chat or a public place, revoke it and create a new one.
 - The frontend is public by nature; secrets must only live in the backend environment.
-

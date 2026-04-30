@@ -1,51 +1,60 @@
-# StoryOrbit AI 产品亮点
+# StoryOrbit AI Product Overview
 
-## 1. 不是 AI 写作助手，是故事宇宙仿真实验室
+## 1. Story Simulation, Not Just AI Writing
 
-普通 AI 写作工具输出文本，StoryOrbit AI 运行角色。角色会根据自己的目标、秘密、关系和记忆做出反应，帮助作者看到故事是否真的成立。
+Most AI writing tools generate text. StoryOrbit AI helps creators run a story world.
 
-## 2. 多角色智能体
+Characters react according to their goals, secrets, memories, relationships, fears, and hard rules. This lets creators test whether a story direction is believable before writing the full scene.
 
-每个角色都是一个独立 Agent：
+## 2. Multi-Agent Creative Workflow
 
-- 主角：追求目标，但有隐藏弱点。
-- 反派：拥有合理动机，而不是工具人。
-- 配角：推动冲突或揭示信息。
-- 观众 Agent：模拟粉丝反应。
-- 导演 Agent：控制节奏、冲突和章节目标。
+The product separates creative responsibilities into focused agents:
 
-## 3. 剧情压力测试
+- Character Agents respond from each character's point of view.
+- Director Agent turns reactions into plot branches.
+- Critic Agent checks story quality and consistency.
+- Scriptwriter Agent formats the result into usable outputs.
 
-系统会自动检查：
+This structure helps creators explore alternatives instead of accepting one generated answer.
 
-- 人物是否崩坏。
-- 情节是否靠巧合推进。
-- 伏笔是否没有回收。
-- 反派动机是否太弱。
-- 爽点是否分散。
-- 短剧前 5 秒是否有钩子。
+## 3. Character Memory Engine
 
-## 4. 高 Token 消耗但有真实价值
+Each character can carry:
 
-一个故事宇宙可能包含：
+- public goal
+- hidden motive
+- fear or weakness
+- relationship memory
+- long-term memory
+- speech style
+- behavior rules
 
-- 6 个主要角色。
-- 30 段历史事件。
-- 20 个章节节点。
-- 5 条剧情分支。
-- 多轮角色对话和评审。
+The goal is to reduce character drift in long-running stories.
 
-这类任务天然需要长上下文、多轮推理和多智能体协作，适合 MiMo API。
+## 4. Plot Stress Test
 
-## 5. 可展示成果
+StoryOrbit AI checks a plot from multiple dimensions:
 
-MVP 可以输出：
+- logic consistency
+- character motivation
+- emotional curve
+- hook strength
+- pacing
+- payoff
+- coincidence risk
+- audience appeal
 
-- 角色卡
-- 世界观设定
-- 剧情分支图
-- 短剧分镜脚本
-- 网文连载大纲
-- 游戏任务链
-- 粉丝视角评审报告
+The result gives creators a revision direction instead of only a score.
 
+## 5. Practical Deliverables
+
+The app can export:
+
+- Story Bible
+- character memory pack
+- short-drama storyboard
+- web-novel outline
+- game quest chain
+- project pitch
+
+These deliverables can be used in writing, planning, pitching, and team discussion.

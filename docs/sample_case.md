@@ -1,63 +1,75 @@
-# 示例案例：霓虹城继承人
+# Sample Case: Neon Heir
 
-## 故事设定
+This sample shows how StoryOrbit AI can structure a short-drama suspense project.
 
-类型：都市悬疑短剧  
-受众：18-30 岁短剧用户  
-核心钩子：一个外卖员发现自己是科技集团失踪继承人，但所有亲人都希望他继续失踪。
+## Story Setup
 
-## 主要角色
+Genre: urban suspense short drama
 
-### 林澈
+Audience: short-drama viewers aged 18-30
 
-表面身份：外卖员  
-真实身份：星环科技继承人  
-隐藏弱点：害怕自己只是被利用的替身  
-目标：查清父亲失踪真相
+Core hook: a delivery rider discovers that he may be the missing heir of a technology group, but everyone around him needs him to stay invisible.
 
-### 沈遥
+## Main Characters
 
-表面身份：律师  
-真实身份：受林澈母亲委托保护他的人  
-隐藏目标：不让林澈回到集团  
-目标：阻止继承权战争失控
+### Lin Chen
 
-### 秦越
+- Public identity: delivery rider
+- True identity: possible heir of Starloop Technology
+- Hidden weakness: fears that he is only a substitute used by others
+- Goal: discover what happened to his missing father
 
-表面身份：星环科技代理 CEO  
-真实身份：林澈父亲的学生  
-隐藏目标：证明自己比继承人更配掌控集团  
-目标：在董事会前摧毁林澈可信度
+### Shen Yao
 
-## 输入事件
+- Public identity: lawyer
+- Hidden role: assigned by Lin Chen's mother to protect him
+- Hidden goal: prevent Lin Chen from entering the inheritance war too early
+- Goal: keep the conflict under control
 
-林澈在送餐时进入星环科技顶层会议室，发现董事会正在讨论“确认继承人死亡”的文件。
+### Qin Yue
 
-## 系统推演输出示例
+- Public identity: acting CEO of Starloop Technology
+- True relationship: former student of Lin Chen's father
+- Hidden goal: prove that he deserves control more than the heir
+- Goal: destroy Lin Chen's credibility before the board meeting
 
-### 角色即时反应
+## Input Event
 
-- 林澈：先隐藏身份，拍下文件，试图从会议内容判断谁在撒谎。
-- 沈遥：发现林澈闯入后，假装不认识他，但用眼神提示他立刻离开。
-- 秦越：故意让保安放走林澈，因为他想顺藤摸瓜找到背后保护者。
+Lin Chen enters the top-floor boardroom while delivering food and sees the board discussing a document titled "Confirmation of Heir's Death."
 
-### 三条剧情分支
+## Simulated Character Reactions
 
-1. 林澈公开身份，董事会现场失控，适合强反转短剧。
-2. 林澈假装普通外卖员逃离，进入悬疑调查线。
-3. 秦越主动接近林澈，制造“反派像导师”的复杂关系。
+- Lin Chen hides his identity, photographs the document, and tries to infer who is lying.
+- Shen Yao pretends not to know him, but signals with her eyes that he should leave immediately.
+- Qin Yue lets security escort Lin Chen out because he wants to expose the person protecting him.
 
-### 剧情压力测试
+## Plot Branches
 
-- 优点：开场钩子强，身份反差明显，适合短剧第一集。
-- 风险：林澈进入顶层会议室需要合理理由，否则显得巧合。
-- 修改建议：设置“系统派单地址被人故意篡改”，让闯入成为阴谋的一部分。
+1. Lin Chen reveals his identity in public, creating an immediate boardroom reversal.
+2. Lin Chen escapes as an ordinary delivery rider and begins a suspense investigation line.
+3. Qin Yue approaches Lin Chen directly and creates a complicated enemy-mentor relationship.
 
-### 1 分钟短剧分镜
+## Stress Test Result
 
-1. 0-5 秒：林澈推开会议室门，董事长位置空着。
-2. 5-15 秒：镜头扫过文件标题“继承人死亡确认书”。
-3. 15-30 秒：秦越抬头说：“外卖员，你走错地方了。”
-4. 30-45 秒：林澈看到文件上的照片，正是自己小时候。
-5. 45-60 秒：沈遥低声说：“别回头，快走。”画面切黑。
+Strengths:
 
+- The opening hook is direct and visual.
+- The identity gap is easy for viewers to understand.
+- The boardroom setting creates pressure quickly.
+
+Risks:
+
+- Lin Chen needs a believable reason to enter the boardroom.
+- Shen Yao's behavior must not reveal too much too early.
+
+Revision suggestion:
+
+Make the delivery address intentionally altered by an unknown person, so Lin Chen's arrival becomes part of a larger trap.
+
+## Short-Drama Storyboard
+
+1. 0-5s: Lin Chen pushes open the boardroom door. The chairman's seat is empty.
+2. 5-15s: The camera reveals the document title: "Confirmation of Heir's Death."
+3. 15-30s: Qin Yue says, "Delivery rider, you are on the wrong floor."
+4. 30-45s: Lin Chen sees a childhood photo of himself in the document.
+5. 45-60s: Shen Yao whispers, "Do not look back. Leave now." Cut to black.

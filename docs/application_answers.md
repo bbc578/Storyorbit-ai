@@ -1,95 +1,64 @@
-# Xiaomi MiMo Orbit 申请表文案
+# StoryOrbit AI User Guide
 
-## 项目名称
+This document explains how creators can use StoryOrbit AI in a real writing workflow.
 
-StoryOrbit AI
+## Who It Is For
 
-## 一句话介绍
+StoryOrbit AI is built for creators who need to manage story structure across multiple scenes, characters, and branches:
 
-StoryOrbit AI 是一个面向短剧、网文、游戏叙事和 IP 创作者的故事宇宙仿真实验室，用多角色智能体运行剧情、发现漏洞、生成分镜和连载方案。
+- short-drama writers
+- web-novel authors
+- game narrative designers
+- IP/worldbuilding creators
+- content teams developing repeatable story formats
 
-## 项目详细介绍
+## What The Product Does
 
-现在很多 AI 写作工具的能力停留在“帮用户续写一段文字”。但真正的故事创作难点并不是写出一段漂亮文本，而是让一个故事世界长期自洽：角色动机是否可信，人物关系是否有张力，冲突是否足够强，剧情转折是否自然，前后伏笔是否能回收，爽点和情绪节奏是否稳定。
+StoryOrbit AI turns a story idea into a structured creative workspace.
 
-StoryOrbit AI 的核心想法是：把故事从静态文本变成一个可以运行、可以测试、可以反复推演的世界。
+It can help users:
 
-创作者输入世界观、角色设定、目标受众和故事类型后，系统会为每个主要角色创建独立智能体。每个角色智能体拥有自己的性格、欲望、秘密、底线、关系记忆和当前目标。然后系统通过 Director Agent 调度这些角色，让他们在同一个故事空间中对话、冲突、合作或背叛。
+- create a Story Bible
+- define character memory and relationship rules
+- simulate the next plot event
+- generate multiple plot branches
+- test whether the story logic holds together
+- export usable creative materials
 
-系统不会只给作者一篇成稿，而是输出四类真正有创作价值的结果：
+## Basic Workflow
 
-- 剧情推演：给定一个事件，模拟不同角色会如何反应，并生成多条故事分支。
-- 剧情压力测试：检查角色是否崩坏、逻辑是否断裂、伏笔是否遗漏、反派动机是否薄弱。
-- 短剧分镜：按 30 秒、1 分钟或 3 分钟节奏生成镜头、台词、情绪点和钩子。
-- 粉丝视角评审：模拟不同观众群体对人物、节奏、爽点和结局的反应。
+1. Open `app/index.html`.
+2. Use Beginner Mode to enter one story idea, or use the professional workspace directly.
+3. Edit the Story Bible and target audience.
+4. Add or refine character memory cards.
+5. Enter the next plot event.
+6. Run a simulation.
+7. Review character reactions, plot branches, and the stress test.
+8. Export the result as Markdown.
 
-这让 AI 从“代写工具”变成创作者的故事实验室。用户可以在正式写作前先运行角色，看到故事是否成立，再进入正式创作。
+## Offline And Cloud Modes
 
-## 目标用户
+The app includes a local rule engine, so users can test the product without an API key.
 
-第一阶段面向四类用户：
+If a backend AI proxy is configured, the app can run a stronger multi-agent workflow:
 
-1. 短剧编剧：需要快速生成高密度冲突、反转和分镜脚本。
-2. 网文作者：需要维护长篇设定、角色关系、伏笔和连载节奏。
-3. 游戏叙事策划：需要设计 NPC 人设、任务链、阵营关系和玩家选择分支。
-4. IP 创作者：需要把一个核心设定扩展为角色矩阵、世界观年表和内容宇宙。
+- Bootstrap Agent
+- Character Agents
+- Director Agent
+- Critic Agent
+- Scriptwriter Agent
 
-这些用户都有高频、长周期、多轮创作需求，不是一次性问答场景。
+The user interface describes this as cloud AI enhancement, so the product is not tied to a single AI provider.
 
-## 使用 Xiaomi MiMo API 的方式
+## Expected Outputs
 
-StoryOrbit AI 计划使用 Xiaomi MiMo API 完成以下核心能力：
+StoryOrbit AI can export:
 
-- 角色智能体生成：根据角色小传生成性格、目标、禁区、语言风格和行为规则。
-- 多角色对话推演：让多个角色在同一事件下进行多轮互动。
-- 长上下文记忆：维护世界观、角色关系、历史事件、伏笔和冲突状态。
-- 剧情压力测试：从逻辑、节奏、情绪、爽点、商业化潜力等维度评审故事。
-- 短剧分镜生成：将剧情节点转成镜头、场景、台词、钩子和结尾反转。
-- 粉丝群体模拟：模拟不同观众类型的评价，帮助作者优化人物和节奏。
+- Story Bible
+- character memory pack
+- short-drama storyboard
+- serial outline
+- game quest chain
+- project pitch
 
-该项目天然需要大量 Token：一个故事项目通常包含多个角色、多轮推演、多版本剧情和长上下文记忆。Token 会被用于真正的创作流程，而不是简单闲聊。
-
-## 当前进展
-
-项目已经完成本地可运行 MVP，已完成：
-
-- 产品定位和核心差异化设计。
-- 多角色智能体工作流。
-- 剧情压力测试机制设计。
-- 申请材料、PRD、技术方案和示例案例。
-- 完整本地应用，可直接打开 `app/index.html` 体验核心流程。
-- 支持多项目管理、故事设定、资料导入、角色卡管理、角色长期记忆、剧情事件输入、多角色推演、连续剧情推进、专业压力测试、关系图、分支树、分镜/大纲/提案生成、Markdown 导出和浏览器本地保存。
-- 内置三套真实案例模板：都市短剧《霓虹城继承人》、玄幻网文《烬海王座》、游戏任务线《灰港协议》。
-
-当前版本先使用本地规则引擎跑通产品闭环，下一步计划接入 MiMo API，将规则生成替换为模型生成：
-
-- 创建故事宇宙和角色卡。
-- 运行多角色剧情推演。
-- 自动生成剧情漏洞报告。
-- 输出短剧分镜和连载章节大纲。
-
-## 希望获得 Token 权益的用途
-
-希望获得 MiMo API Token 支持，用于：
-
-- 构建多角色智能体推演链路。
-- 测试 3-8 个角色同时参与剧情时的上下文管理能力。
-- 生成不同类型故事的样例，包括短剧、网文、游戏任务和 IP 设定。
-- 进行剧情压力测试和粉丝视角模拟。
-- 邀请创作者内测，收集真实创作任务并优化提示词模板。
-
-## 为什么适合创造者激励计划
-
-StoryOrbit AI 的目标用户本身就是内容创造者。它不是把 AI 当作一次性问答工具，而是把模型能力变成可复用的创作基础设施：角色可以持续成长，世界观可以持续扩展，剧情可以反复推演和测试。
-
-相比普通 AI 写作助手，StoryOrbit AI 更能展示 MiMo API 在长上下文、多智能体、复杂创作和高频迭代场景下的价值。如果获得 Token 支持，项目可以快速产出一批可展示案例，为 MiMo 生态贡献一个更有辨识度的创作者应用样板。
-
-## 证明材料说明
-
-可提交材料包括：
-
-- 产品 PRD 和技术方案。
-- 静态产品原型截图。
-- 示例故事宇宙案例。
-- 多角色智能体流程说明。
-- 后续 MVP 开发路线。
+These outputs are intended to support real creative work, not only demos.
